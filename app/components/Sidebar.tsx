@@ -92,7 +92,7 @@ export default function Sidebar({
       </div>
 
       {/* ── Nav items (compact) ── */}
-      <nav className="flex-1 px-2 py-3 space-y-0">
+      <nav className="flex-1 px-2 py-2 space-y-0">
         {navItems.map(({ id, label, icon: Icon }) => {
           const active = nav === id;
           return (
@@ -102,14 +102,14 @@ export default function Sidebar({
               title={collapsed ? label : undefined}
               className={[
                 "w-full flex items-center rounded-lg text-sm font-medium transition-all border",
-                collapsed ? "justify-center px-0 py-2.5" : "gap-2.5 px-3 py-2.5",
+                collapsed ? "justify-center px-0 py-2.5" : "gap-2 px-3 py-2.5",
                 active
                   ? "bg-amber-500/10 text-amber-400 border-amber-500/20"
                   : "text-gray-400 hover:text-white hover:bg-white/[0.04] border-transparent",
               ].join(" ")}
             >
-              <Icon className="w-4 h-4 flex-shrink-0" />
-              {!collapsed && <span className="flex-1">{label}</span>}
+              <Icon className="w-[15px] h-[15px] flex-shrink-0" />
+              {!collapsed && <span>{label}</span>}
               {!collapsed && id === "history" && historyCount > 0 && (
                 <span
                   className={[
