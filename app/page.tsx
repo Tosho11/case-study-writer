@@ -41,7 +41,7 @@ export default function Home() {
             I am a Product Designer based in Birmingham, UK.
           </p>
           <p className="text-gray-400 text-sm leading-relaxed max-w-lg">
-            I built this tool to help new designers turn their project notes into compelling portfolio case studies — in seconds.
+            I built this tool to help new designers turn their project and product notes into compelling portfolio case studies in minutes.
           </p>
         </div>
 

@@ -190,7 +190,7 @@ export default function CaseStudyForm() {
           </span>
         </h1>
         <p className="text-gray-500 text-sm max-w-xl mx-auto leading-relaxed mb-1">
-          A free tool by Abayomi — Product Designer based in Birmingham
+          A free tool by Abayomi Product Designer based in Birmingham
         </p>
       </div>
 
