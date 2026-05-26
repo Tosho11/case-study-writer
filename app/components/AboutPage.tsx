@@ -13,7 +13,7 @@ export default function AboutPage() {
             The Tool
           </h2>
           <p className="text-gray-300 text-sm leading-relaxed">
-            Case Study Writer helps product designers and builders turn rough project notes into polished portfolio case studies in seconds.
+            Casely helps product designers and builders turn rough project notes into polished portfolio case studies in seconds.
           </p>
         </div>
 
