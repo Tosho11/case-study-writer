@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useRef, useEffect } from "react";
-import { Trash2, ChevronLeft, Copy, Check, Clock } from "lucide-react";
+import { Trash2, ChevronLeft, Copy, Check, Clock, Search } from "lucide-react";
 import type { HistoryItem } from "../types";
 
 // ─── Markdown → HTML ────────────────────────────────────────────────────────
@@ -63,11 +63,18 @@ function markdownToHtml(text: string): string {
 }
 
 function formatDate(iso: string): string {
-  return new Date(iso).toLocaleDateString("en-GB", {
+  const d = new Date(iso);
+  const date = d.toLocaleDateString("en-GB", {
     day: "numeric",
     month: "short",
     year: "numeric",
   });
+  const time = d.toLocaleTimeString("en-GB", {
+    hour: "numeric",
+    minute: "2-digit",
+    hour12: true,
+  }).toUpperCase();
+  return `${date} · ${time}`;
 }
 
 // ─── History detail (full editable view) ────────────────────────────────────
@@ -155,6 +162,7 @@ interface Props {
 
 export default function HistoryPage({ items, onDelete }: Props) {
   const [selected, setSelected] = useState<HistoryItem | null>(null);
+  const [search, setSearch] = useState("");
 
   // If the selected item gets deleted from outside, clear the selection
   useEffect(() => {
@@ -183,50 +191,72 @@ export default function HistoryPage({ items, onDelete }: Props) {
     );
   }
 
+  const filtered = items.filter((item) =>
+    item.projectName.toLowerCase().includes(search.toLowerCase())
+  );
+
   return (
     <div className="animate-fade-in">
-      <div className="mb-8">
+      <div className="mb-6">
         <h1 className="text-2xl font-bold text-white mb-1">History</h1>
         <p className="text-gray-500 text-sm">
           {items.length} case {items.length === 1 ? "study" : "studies"} saved
         </p>
       </div>
 
-      <div className="space-y-3">
-        {items.map((item) => (
-          <div
-            key={item.id}
-            className="group bg-white/[0.03] hover:bg-white/[0.05] border border-white/[0.07] hover:border-white/[0.12] rounded-2xl p-5 transition-all cursor-pointer"
-            onClick={() => setSelected(item)}
-          >
-            <div className="flex items-start justify-between gap-4">
-              <div className="flex-1 min-w-0">
-                <p className="text-white font-medium text-sm mb-1 truncate">
-                  {item.projectName}
-                </p>
-                <p className="text-gray-600 text-xs mb-2">
-                  {formatDate(item.generatedAt)}
-                </p>
-                {item.preview && (
-                  <p className="text-gray-500 text-xs leading-relaxed line-clamp-2">
-                    {item.preview}
-                  </p>
-                )}
-              </div>
-              <button
-                onClick={(e) => {
-                  e.stopPropagation();
-                  onDelete(item.id);
-                }}
-                title="Delete"
-                className="flex-shrink-0 opacity-0 group-hover:opacity-100 text-gray-600 hover:text-red-400 transition-all p-1.5 rounded-lg hover:bg-red-500/10"
-              >
-                <Trash2 className="w-3.5 h-3.5" />
-              </button>
-            </div>
-          </div>
-        ))}
+      {/* Search bar */}
+      <div className="relative mb-5">
+        <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-600 pointer-events-none" />
+        <input
+          type="text"
+          value={search}
+          onChange={(e) => setSearch(e.target.value)}
+          placeholder="Search by project name…"
+          className="w-full bg-white/[0.04] border border-white/[0.08] rounded-xl pl-9 pr-4 py-2.5 text-white placeholder-gray-600 focus:outline-none focus:ring-2 focus:ring-amber-500/40 focus:border-amber-500/40 transition text-sm"
+        />
       </div>
+
+      {filtered.length === 0 ? (
+        <p className="text-gray-600 text-sm text-center py-10">
+          No case studies match &ldquo;{search}&rdquo;
+        </p>
+      ) : (
+        <div className="space-y-3">
+          {filtered.map((item) => (
+            <div
+              key={item.id}
+              className="group bg-white/[0.03] hover:bg-white/[0.05] border border-white/[0.07] hover:border-white/[0.12] rounded-2xl p-5 transition-all cursor-pointer"
+              onClick={() => setSelected(item)}
+            >
+              <div className="flex items-start justify-between gap-4">
+                <div className="flex-1 min-w-0">
+                  <p className="text-white font-medium text-sm mb-1 truncate">
+                    {item.projectName}
+                  </p>
+                  <p className="text-gray-600 text-xs mb-2">
+                    {formatDate(item.generatedAt)}
+                  </p>
+                  {item.preview && (
+                    <p className="text-gray-500 text-xs leading-relaxed line-clamp-2">
+                      {item.preview}
+                    </p>
+                  )}
+                </div>
+                <button
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    onDelete(item.id);
+                  }}
+                  title="Delete"
+                  className="flex-shrink-0 opacity-0 group-hover:opacity-100 text-gray-600 hover:text-red-400 transition-all p-1.5 rounded-lg hover:bg-red-500/10"
+                >
+                  <Trash2 className="w-3.5 h-3.5" />
+                </button>
+              </div>
+            </div>
+          ))}
+        </div>
+      )}
     </div>
   );
 }
