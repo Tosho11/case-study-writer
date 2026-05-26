@@ -3,14 +3,14 @@ export default function AboutPage() {
     <div className="animate-fade-in max-w-xl">
       <div className="mb-8">
         <h1 className="text-2xl font-bold text-white mb-1">About</h1>
-        <p className="text-gray-500 text-sm">Why Abayomi made this tool</p>
+        <p className="text-gray-500 text-sm">Why TOSHO built Casely?</p>
       </div>
 
       <div className="bg-white/[0.03] border border-white/[0.07] rounded-2xl p-6 sm:p-8 space-y-6">
         {/* What it does */}
         <div>
           <h2 className="text-xs font-bold tracking-widest uppercase text-amber-400 mb-3">
-            The Tool
+            CASELY
           </h2>
           <p className="text-gray-300 text-sm leading-relaxed">
             Casely helps product designers and builders turn rough project notes into polished portfolio case studies in seconds.
@@ -22,7 +22,7 @@ export default function AboutPage() {
         {/* How to use */}
         <div>
           <h2 className="text-xs font-bold tracking-widest uppercase text-amber-400 mb-3">
-            How to Use It
+            How to Use CASELY
           </h2>
           <ol className="space-y-2">
             {[
