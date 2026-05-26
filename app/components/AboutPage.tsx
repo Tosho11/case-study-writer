@@ -26,7 +26,7 @@ export default function AboutPage() {
           </h2>
           <ol className="space-y-2">
             {[
-              "Fill in the Generate form — at minimum, The Problem, Your Role, Your Process & Approach and Outcomes & Impact",
+              "Fill in the Generate form; at minimum, The Problem, Your Role, Your Process & Approach and Outcomes & Impact",
               "Click Generate Case Study and wait a few seconds",
               "Read through the result, click to edit anything you want to adjust",
               "Copy the finished text straight into your portfolio",
