@@ -158,8 +158,7 @@ export default function CaseStudyForm() {
     setLoading(false);
   };
 
-  const isFormFilled = Object.values(form).some((v) => v.trim().length > 0);
-  const isFormReady = form.projectName && form.role && form.problem && form.outcomes;
+  const isFormReady = form.projectName.trim().length > 0;
 
   if (output || loading) {
     return (
@@ -256,11 +255,6 @@ export default function CaseStudyForm() {
                 </>
               )}
             </button>
-            {!isFormReady && isFormFilled && (
-              <p className="text-center text-xs text-gray-600 mt-2">
-                Fill in Project Name, Role, Problem, and Outcomes to continue
-              </p>
-            )}
           </div>
         </form>
       </div>

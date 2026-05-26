@@ -29,28 +29,19 @@ export default function Home() {
         </div>
       </div>
 
-      <div className="relative z-10 max-w-2xl mx-auto px-4 py-16 sm:py-20">
-
-        {/* Personal intro */}
-        <div className="mb-14">
-
-          <h2 className="text-4xl sm:text-5xl font-bold text-white mb-3 tracking-tight">
-            Hi, I&apos;m Abayomi.
-          </h2>
-          <p className="text-2xl sm:text-3xl font-bold text-white mb-4 leading-snug">
-            I am a Product Designer based in Birmingham, UK.
-          </p>
-          <p className="text-gray-400 text-sm leading-relaxed max-w-lg">
-            I built this tool to help new designers turn their project and product notes into compelling portfolio case studies in minutes.
-          </p>
-        </div>
+      <div className="relative z-10 max-w-4xl mx-auto px-4 py-16 sm:py-20">
 
         <CaseStudyForm />
 
         {/* Footer */}
-        <p className="text-center text-gray-700 text-xs mt-10">
-          Built by Abayomi Omotoso · Product Designer · 2026
-        </p>
+        <div className="mt-10 text-center space-y-1.5">
+          <p className="text-gray-700 text-xs">
+            Built by Abayomi Omotoso · Product Designer · Birmingham, UK · 2026
+          </p>
+          <p className="text-gray-600 text-xs">
+            A free tool to help designers turn project notes into compelling portfolio case studies.
+          </p>
+        </div>
       </div>
     </main>
   );

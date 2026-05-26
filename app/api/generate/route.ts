@@ -21,18 +21,24 @@ export async function POST(req: NextRequest) {
 
     console.log("[generate] starting generation for project:", projectName);
 
-    const prompt = `You are an expert portfolio writer helping professionals craft compelling case studies. Write a portfolio case study based on the following project details.
+    const providedFields = [
+      `Project Name: ${projectName}`,
+      role && `Role: ${role}`,
+      problem && `Problem/Challenge: ${problem}`,
+      approach && `Process/Approach: ${approach}`,
+      keyDecisions && `Key Decisions: ${keyDecisions}`,
+      outcomes && `Outcomes/Results: ${outcomes}`,
+      tools && `Tools Used: ${tools}`,
+      duration && `Duration: ${duration}`,
+    ]
+      .filter(Boolean)
+      .join("\n");
 
-Project Name: ${projectName}
-Role: ${role}
-Problem/Challenge: ${problem}
-Process/Approach: ${approach}
-Key Decisions: ${keyDecisions}
-Outcomes/Results: ${outcomes}
-Tools Used: ${tools}
-Duration: ${duration}
+    const prompt = `You are an expert portfolio writer helping professionals craft compelling case studies. Write a portfolio case study based on the following project details. Some fields may be missing — use only what's provided and write the best possible case study from it. Do not mention or reference any missing information.
 
-Write a professional, engaging portfolio case study with EXACTLY these five sections in order:
+${providedFields}
+
+Write a professional, engaging portfolio case study with these sections (include a section only if there is enough information to write it meaningfully):
 
 ## Opening Hook
 A compelling 2-3 sentence hook that grabs attention and highlights the most impressive outcome or challenge.

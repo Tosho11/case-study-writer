@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { Copy, Check, RefreshCw, Loader2 } from "lucide-react";
 
 interface Props {
@@ -11,25 +11,35 @@ interface Props {
   onReset: () => void;
 }
 
-function renderMarkdown(text: string): React.ReactNode[] {
+function escapeHtml(text: string): string {
+  return text
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;");
+}
+
+function renderInlineHtml(text: string): string {
+  return escapeHtml(text).replace(
+    /\*\*([^*]+)\*\*/g,
+    '<strong class="text-white font-semibold">$1</strong>'
+  );
+}
+
+function markdownToHtml(text: string): string {
   const lines = text.split("\n");
-  const nodes: React.ReactNode[] = [];
+  const html: string[] = [];
   let i = 0;
 
   while (i < lines.length) {
     const line = lines[i];
 
     if (line.startsWith("## ")) {
-      nodes.push(
-        <h2 key={i} className="prose-h2">
-          {line.replace(/^## /, "")}
-        </h2>
+      html.push(
+        `<h2 class="text-xs font-bold tracking-widest uppercase text-amber-400 mt-6 mb-2 first:mt-0">${escapeHtml(line.replace(/^## /, ""))}</h2>`
       );
     } else if (line.startsWith("# ")) {
-      nodes.push(
-        <h1 key={i} className="text-xl font-bold text-white mb-2">
-          {line.replace(/^# /, "")}
-        </h1>
+      html.push(
+        `<h1 class="text-lg font-bold text-white mb-3">${escapeHtml(line.replace(/^# /, ""))}</h1>`
       );
     } else if (line.startsWith("- ") || line.startsWith("* ")) {
       const items: string[] = [];
@@ -37,32 +47,24 @@ function renderMarkdown(text: string): React.ReactNode[] {
         i < lines.length &&
         (lines[i].startsWith("- ") || lines[i].startsWith("* "))
       ) {
-        items.push(lines[i].replace(/^[-*] /, ""));
+        items.push(
+          `<li class="text-gray-300 text-sm leading-relaxed ml-4 list-disc">${renderInlineHtml(lines[i].replace(/^[-*] /, ""))}</li>`
+        );
         i++;
       }
-      nodes.push(
-        <ul key={`ul-${i}`} className="list-disc pl-5 mb-3 space-y-1">
-          {items.map((item, j) => (
-            <li key={j} className="text-gray-300 text-sm leading-relaxed">
-              {renderInline(item)}
-            </li>
-          ))}
-        </ul>
-      );
+      html.push(`<ul class="mb-2">${items.join("")}</ul>`);
       continue;
     } else if (line.trim() === "") {
-      // skip blank
+      html.push('<div class="h-1"></div>');
     } else {
-      nodes.push(
-        <p key={i} className="text-gray-300 text-sm leading-relaxed mb-2">
-          {renderInline(line)}
-        </p>
+      html.push(
+        `<p class="text-gray-300 text-sm leading-relaxed mb-1">${renderInlineHtml(line)}</p>`
       );
     }
     i++;
   }
 
-  return nodes;
+  return html.join("");
 }
 
 function renderInline(text: string): React.ReactNode {
@@ -87,9 +89,19 @@ export default function CaseStudyOutput({
   onReset,
 }: Props) {
   const [copied, setCopied] = useState(false);
+  const editableRef = useRef<HTMLDivElement>(null);
+
+  // Set editable HTML once when generation completes — never again,
+  // so React doesn't overwrite the user's edits on re-renders.
+  useEffect(() => {
+    if (done && editableRef.current && output) {
+      editableRef.current.innerHTML = markdownToHtml(output);
+    }
+  }, [done]); // eslint-disable-line react-hooks/exhaustive-deps
 
   const handleCopy = async () => {
-    await navigator.clipboard.writeText(output);
+    const text = editableRef.current?.innerText ?? output;
+    await navigator.clipboard.writeText(text);
     setCopied(true);
     setTimeout(() => setCopied(false), 2000);
   };
@@ -109,7 +121,7 @@ export default function CaseStudyOutput({
           </div>
           {done && (
             <p className="text-gray-500 text-sm">
-              Ready to copy and paste into your portfolio
+              Click to edit · then copy to your portfolio
             </p>
           )}
         </div>
@@ -146,50 +158,61 @@ export default function CaseStudyOutput({
       {/* Output box */}
       <div className="bg-white/[0.03] border border-white/[0.07] rounded-2xl p-6 sm:p-8 min-h-[300px]">
         {output ? (
-          <div className={loading ? "cursor-blink" : ""}>
-            {/* Section headers */}
-            {output.split("\n").map((line, i) => {
-              if (line.startsWith("## ")) {
-                return (
-                  <h2
-                    key={i}
-                    className="text-xs font-bold tracking-widest uppercase text-amber-400 mt-6 mb-2 first:mt-0"
-                  >
-                    {line.replace(/^## /, "")}
-                  </h2>
-                );
-              } else if (line.startsWith("# ")) {
-                return (
-                  <h1
-                    key={i}
-                    className="text-lg font-bold text-white mb-3"
-                  >
-                    {line.replace(/^# /, "")}
-                  </h1>
-                );
-              } else if (line.trim() === "") {
-                return <div key={i} className="h-1" />;
-              } else if (line.startsWith("- ") || line.startsWith("* ")) {
-                return (
-                  <li
-                    key={i}
-                    className="text-gray-300 text-sm leading-relaxed ml-4 list-disc"
-                  >
-                    {renderInline(line.replace(/^[-*] /, ""))}
-                  </li>
-                );
-              } else {
-                return (
-                  <p
-                    key={i}
-                    className="text-gray-300 text-sm leading-relaxed mb-1"
-                  >
-                    {renderInline(line)}
-                  </p>
-                );
-              }
-            })}
-          </div>
+          <>
+            {/* Streaming view — plain React render, not editable */}
+            {!done && (
+              <div className="cursor-blink">
+                {output.split("\n").map((line, i) => {
+                  if (line.startsWith("## ")) {
+                    return (
+                      <h2
+                        key={i}
+                        className="text-xs font-bold tracking-widest uppercase text-amber-400 mt-6 mb-2 first:mt-0"
+                      >
+                        {line.replace(/^## /, "")}
+                      </h2>
+                    );
+                  } else if (line.startsWith("# ")) {
+                    return (
+                      <h1 key={i} className="text-lg font-bold text-white mb-3">
+                        {line.replace(/^# /, "")}
+                      </h1>
+                    );
+                  } else if (line.trim() === "") {
+                    return <div key={i} className="h-1" />;
+                  } else if (line.startsWith("- ") || line.startsWith("* ")) {
+                    return (
+                      <li
+                        key={i}
+                        className="text-gray-300 text-sm leading-relaxed ml-4 list-disc"
+                      >
+                        {renderInline(line.replace(/^[-*] /, ""))}
+                      </li>
+                    );
+                  } else {
+                    return (
+                      <p
+                        key={i}
+                        className="text-gray-300 text-sm leading-relaxed mb-1"
+                      >
+                        {renderInline(line)}
+                      </p>
+                    );
+                  }
+                })}
+              </div>
+            )}
+
+            {/* Editable view — shown once generation is complete */}
+            {done && (
+              <div
+                ref={editableRef}
+                contentEditable
+                suppressContentEditableWarning
+                className="outline-none focus:ring-2 focus:ring-amber-500/30 focus:rounded-lg"
+              />
+            )}
+          </>
         ) : (
           <div className="flex items-center justify-center h-48">
             <div className="flex items-center gap-3 text-gray-600">
@@ -200,7 +223,7 @@ export default function CaseStudyOutput({
         )}
       </div>
 
-      {/* Bottom actions for mobile / convenience */}
+      {/* Bottom actions */}
       {done && (
         <div className="flex gap-3 mt-4">
           <button
