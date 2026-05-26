@@ -38,7 +38,7 @@ export default function Sidebar({
         open ? "translate-x-0" : "-translate-x-full lg:translate-x-0",
       ].join(" ")}
     >
-      {/* Identity block */}
+      {/* App name / logo */}
       <div className="relative px-5 pt-7 pb-5 border-b border-white/[0.06]">
         {/* Mobile close */}
         <button
@@ -48,26 +48,7 @@ export default function Sidebar({
           <X className="w-4 h-4" />
         </button>
 
-        <div className="flex items-center gap-3 mb-3">
-          <div className="w-9 h-9 rounded-full border border-[#F59E0B]/40 bg-[#F59E0B]/10 flex items-center justify-center flex-shrink-0">
-            <span className="text-[#F59E0B] text-xs font-bold tracking-wide">
-              AO
-            </span>
-          </div>
-          <div className="min-w-0">
-            <p className="text-white font-semibold text-sm leading-tight">
-              Abayomi
-            </p>
-            <p className="text-amber-500/70 text-xs truncate">
-              Product Designer
-            </p>
-          </div>
-        </div>
-
-        <div className="flex items-center gap-1.5">
-          <span className="w-1.5 h-1.5 rounded-full bg-green-400 animate-pulse flex-shrink-0" />
-          <span className="text-green-400 text-xs">Open to work</span>
-        </div>
+        <p className="text-white font-bold text-lg tracking-tight">Casely</p>
       </div>
 
       {/* Nav items */}
@@ -104,11 +85,26 @@ export default function Sidebar({
         })}
       </nav>
 
-      {/* Bottom label */}
-      <div className="px-5 py-4 border-t border-white/[0.06]">
-        <p className="text-gray-700 text-[10px] leading-relaxed">
-          Case Study Writer · 2026
-        </p>
+      {/* Bottom: identity + label */}
+      <div className="px-5 py-4 border-t border-white/[0.06] space-y-3">
+        {/* Avatar + name + role */}
+        <div className="flex items-center gap-3">
+          <div className="w-8 h-8 rounded-full border border-[#F59E0B]/40 bg-[#F59E0B]/10 flex items-center justify-center flex-shrink-0">
+            <span className="text-[#F59E0B] text-xs font-bold tracking-wide">AO</span>
+          </div>
+          <div className="min-w-0">
+            <p className="text-white font-semibold text-xs leading-tight">Abayomi Omotoso</p>
+            <p className="text-amber-500/70 text-[10px] truncate">Product Designer</p>
+          </div>
+        </div>
+
+        {/* Open to work */}
+        <div className="flex items-center gap-1.5">
+          <span className="w-1.5 h-1.5 rounded-full bg-green-400 animate-pulse flex-shrink-0" />
+          <span className="text-green-400 text-xs">Open to work</span>
+        </div>
+
+        <p className="text-gray-700 text-[10px]">Case Study Writer · 2026</p>
       </div>
     </aside>
   );
