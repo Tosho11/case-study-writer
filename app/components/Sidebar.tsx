@@ -102,7 +102,7 @@ export default function Sidebar({
               title={collapsed ? label : undefined}
               className={[
                 "w-full flex items-center rounded-lg text-sm font-medium transition-all border",
-                collapsed ? "justify-center px-0 py-2" : "gap-2.5 px-3 py-1.5",
+                collapsed ? "justify-center px-0 py-2.5" : "gap-2.5 px-3 py-2.5",
                 active
                   ? "bg-amber-500/10 text-amber-400 border-amber-500/20"
                   : "text-gray-400 hover:text-white hover:bg-white/[0.04] border-transparent",
