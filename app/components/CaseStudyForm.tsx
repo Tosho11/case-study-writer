@@ -196,6 +196,9 @@ export default function CaseStudyForm({ onGenerated }: Props) {
             compelling stories
           </span>
         </h1>
+        <p className="text-gray-400 text-base max-w-lg mx-auto leading-relaxed">
+          Your work deserves a great story. Let&apos;s write it together.
+        </p>
       </div>
 
       {/* Form */}
