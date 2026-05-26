@@ -199,7 +199,7 @@ export default function CaseStudyForm({ onGenerated }: Props) {
         <div className="inline-flex items-center gap-2 bg-amber-500/10 border border-amber-500/20 rounded-full px-4 py-1.5 mb-8">
           <Sparkles className="w-3.5 h-3.5 text-amber-400" />
           <span className="text-amber-300 text-xs font-medium tracking-wide uppercase">
-            Built by Abayomi Omotoso
+            Built by TOSHO
           </span>
         </div>
         <h1 className="text-4xl sm:text-5xl font-bold text-white mb-3 tracking-tight">
