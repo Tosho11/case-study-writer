@@ -3,7 +3,7 @@ export default function AboutPage() {
     <div className="animate-fade-in max-w-xl">
       <div className="mb-8">
         <h1 className="text-2xl font-bold text-white mb-1">About</h1>
-        <p className="text-gray-500 text-sm">What this tool is and why it exists</p>
+        <p className="text-gray-500 text-sm">Why Abayomi made this tool</p>
       </div>
 
       <div className="bg-white/[0.03] border border-white/[0.07] rounded-2xl p-6 sm:p-8 space-y-6">
@@ -13,27 +13,8 @@ export default function AboutPage() {
             The Tool
           </h2>
           <p className="text-gray-300 text-sm leading-relaxed">
-            Case Study Writer helps product designers and builders turn rough project
-            notes into polished portfolio case studies in seconds, powered by Claude AI.
+            Case Study Writer helps product designers and builders turn rough project notes into polished portfolio case studies in seconds.
           </p>
-        </div>
-
-        <div className="border-t border-white/[0.06]" />
-
-        {/* Who made it */}
-        <div>
-          <h2 className="text-xs font-bold tracking-widest uppercase text-amber-400 mb-3">
-            Who Made It
-          </h2>
-          <div className="flex items-center gap-4">
-            <div className="w-10 h-10 rounded-full border border-[#F59E0B]/40 bg-[#F59E0B]/10 flex items-center justify-center flex-shrink-0">
-              <span className="text-[#F59E0B] text-xs font-bold tracking-wide">AO</span>
-            </div>
-            <div>
-              <p className="text-white font-medium text-sm">Abayomi Omotoso</p>
-              <p className="text-gray-500 text-xs">Product Designer · Birmingham, UK</p>
-            </div>
-          </div>
         </div>
 
         <div className="border-t border-white/[0.06]" />
@@ -45,7 +26,7 @@ export default function AboutPage() {
           </h2>
           <ol className="space-y-2">
             {[
-              "Fill in the Generate form — at minimum, your project name",
+              "Fill in the Generate form — at minimum, The Problem, Your Role, Your Process & Approach and Outcomes & Impact",
               "Click Generate Case Study and wait a few seconds",
               "Read through the result, click to edit anything you want to adjust",
               "Copy the finished text straight into your portfolio",
