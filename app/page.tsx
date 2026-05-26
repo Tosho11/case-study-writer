@@ -14,6 +14,7 @@ export default function Home() {
   const [nav, setNav] = useState<NavItem>("generate");
   const [history, setHistory] = useState<HistoryItem[]>([]);
   const [sidebarOpen, setSidebarOpen] = useState(false);
+  const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
 
   // Load history from localStorage on mount
   useEffect(() => {
@@ -89,6 +90,8 @@ export default function Home() {
         historyCount={history.length}
         open={sidebarOpen}
         onClose={() => setSidebarOpen(false)}
+        collapsed={sidebarCollapsed}
+        onToggleCollapse={() => setSidebarCollapsed((p) => !p)}
       />
 
       {/* Main content */}

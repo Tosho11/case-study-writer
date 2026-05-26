@@ -55,7 +55,12 @@ The critical decisions made, trade-offs considered, and the reasoning behind eac
 ## Outcomes
 Concrete results, metrics, and impact. Include both quantitative and qualitative outcomes. End with a brief reflection on what you learned.
 
-Write in first person, professional yet conversational tone. Be specific and avoid vague buzzwords. Make it sound authentic and human.`;
+Write in first person, professional yet conversational tone. Be specific and avoid vague buzzwords. Make it sound authentic and human.
+
+IMPORTANT FORMATTING RULES:
+- Never use bullet points, dashes, or numbered lists anywhere in the output.
+- Write exclusively in flowing, connected paragraphs.
+- Every section must be prose only.`;
 
     let stream;
     try {
