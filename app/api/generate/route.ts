@@ -6,24 +6,27 @@ const client = new Anthropic({
 });
 
 export async function POST(req: NextRequest) {
-  const body = await req.json();
-  const {
-    projectName,
-    role,
-    problem,
-    process,
-    keyDecisions,
-    outcomes,
-    tools,
-    duration,
-  } = body;
+  try {
+    const body = await req.json();
+    const {
+      projectName,
+      role,
+      problem,
+      process: approach,
+      keyDecisions,
+      outcomes,
+      tools,
+      duration,
+    } = body;
 
-  const prompt = `You are an expert portfolio writer helping professionals craft compelling case studies. Write a portfolio case study based on the following project details.
+    console.log("[generate] starting generation for project:", projectName);
+
+    const prompt = `You are an expert portfolio writer helping professionals craft compelling case studies. Write a portfolio case study based on the following project details.
 
 Project Name: ${projectName}
 Role: ${role}
 Problem/Challenge: ${problem}
-Process/Approach: ${process}
+Process/Approach: ${approach}
 Key Decisions: ${keyDecisions}
 Outcomes/Results: ${outcomes}
 Tools Used: ${tools}
@@ -48,34 +51,64 @@ Concrete results, metrics, and impact. Include both quantitative and qualitative
 
 Write in first person, professional yet conversational tone. Be specific and avoid vague buzzwords. Make it sound authentic and human.`;
 
-  const stream = await client.messages.create({
-    model: "claude-sonnet-4-20250514",
-    max_tokens: 1500,
-    stream: true,
-    messages: [{ role: "user", content: prompt }],
-  });
-
-  const encoder = new TextEncoder();
-
-  const readableStream = new ReadableStream({
-    async start(controller) {
-      for await (const event of stream) {
-        if (
-          event.type === "content_block_delta" &&
-          event.delta.type === "text_delta"
-        ) {
-          controller.enqueue(encoder.encode(event.delta.text));
-        }
+    let stream;
+    try {
+      stream = await client.messages.create({
+        model: "claude-sonnet-4-20250514",
+        max_tokens: 1500,
+        stream: true,
+        messages: [{ role: "user", content: prompt }],
+      });
+    } catch (err) {
+      if (err instanceof Anthropic.APIError) {
+        console.error("[generate] Anthropic API error:", {
+          status: err.status,
+          name: err.name,
+          message: err.message,
+          error: err.error,
+        });
+        return new Response(
+          `Anthropic API error (${err.status}): ${err.message}`,
+          { status: err.status ?? 500 }
+        );
       }
-      controller.close();
-    },
-  });
+      throw err;
+    }
 
-  return new Response(readableStream, {
-    headers: {
-      "Content-Type": "text/plain; charset=utf-8",
-      "Transfer-Encoding": "chunked",
-      "Cache-Control": "no-cache",
-    },
-  });
+    const encoder = new TextEncoder();
+
+    const readableStream = new ReadableStream({
+      async start(controller) {
+        try {
+          for await (const event of stream) {
+            if (
+              event.type === "content_block_delta" &&
+              event.delta.type === "text_delta"
+            ) {
+              controller.enqueue(encoder.encode(event.delta.text));
+            }
+          }
+          controller.close();
+          console.log("[generate] stream completed for project:", projectName);
+        } catch (streamErr) {
+          console.error("[generate] stream error:", streamErr);
+          controller.error(streamErr);
+        }
+      },
+    });
+
+    return new Response(readableStream, {
+      headers: {
+        "Content-Type": "text/plain; charset=utf-8",
+        "Transfer-Encoding": "chunked",
+        "Cache-Control": "no-cache",
+      },
+    });
+  } catch (err) {
+    console.error("[generate] unexpected error:", err);
+    return new Response(
+      err instanceof Error ? err.message : "Unexpected server error",
+      { status: 500 }
+    );
+  }
 }
