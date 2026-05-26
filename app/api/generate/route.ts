@@ -54,7 +54,7 @@ Write in first person, professional yet conversational tone. Be specific and avo
     let stream;
     try {
       stream = await client.messages.create({
-        model: "claude-sonnet-4-20250514",
+        model: "claude-sonnet-4-5-20250929",
         max_tokens: 1500,
         stream: true,
         messages: [{ role: "user", content: prompt }],
