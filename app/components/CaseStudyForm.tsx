@@ -93,7 +93,11 @@ const fields = [
   },
 ];
 
-export default function CaseStudyForm() {
+interface Props {
+  onGenerated?: (projectName: string, content: string) => void;
+}
+
+export default function CaseStudyForm({ onGenerated }: Props) {
   const [form, setForm] = useState<FormData>(EMPTY_FORM);
   const [output, setOutput] = useState("");
   const [loading, setLoading] = useState(false);
@@ -133,13 +137,17 @@ export default function CaseStudyForm() {
       const decoder = new TextDecoder();
       if (!reader) throw new Error("No response body");
 
+      let fullOutput = "";
       while (true) {
         const { done: streamDone, value } = await reader.read();
         if (streamDone) break;
-        setOutput((prev) => prev + decoder.decode(value, { stream: true }));
+        const chunk = decoder.decode(value, { stream: true });
+        fullOutput += chunk;
+        setOutput((prev) => prev + chunk);
       }
 
       setDone(true);
+      onGenerated?.(form.projectName, fullOutput);
     } catch (err: unknown) {
       if (err instanceof Error && err.name !== "AbortError") {
         setError(err.message || "An unexpected error occurred.");
