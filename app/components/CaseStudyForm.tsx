@@ -33,6 +33,7 @@ const fields = [
     placeholder: "e.g. Redesigning the Checkout Flow",
     type: "input",
     span: "half",
+    required: true,
   },
   {
     key: "role" as const,
@@ -40,6 +41,7 @@ const fields = [
     placeholder: "e.g. Lead Product Designer",
     type: "input",
     span: "half",
+    required: true,
   },
   {
     key: "duration" as const,
@@ -47,6 +49,7 @@ const fields = [
     placeholder: "e.g. 3 months (Jan–Mar 2024)",
     type: "input",
     span: "half",
+    required: false,
   },
   {
     key: "tools" as const,
@@ -54,6 +57,7 @@ const fields = [
     placeholder: "e.g. Figma, React, Mixpanel, Notion",
     type: "input",
     span: "half",
+    required: false,
   },
   {
     key: "problem" as const,
@@ -63,6 +67,7 @@ const fields = [
     type: "textarea",
     span: "full",
     rows: 3,
+    required: true,
   },
   {
     key: "process" as const,
@@ -72,6 +77,7 @@ const fields = [
     type: "textarea",
     span: "full",
     rows: 3,
+    required: false,
   },
   {
     key: "keyDecisions" as const,
@@ -81,6 +87,7 @@ const fields = [
     type: "textarea",
     span: "full",
     rows: 3,
+    required: false,
   },
   {
     key: "outcomes" as const,
@@ -90,6 +97,7 @@ const fields = [
     type: "textarea",
     span: "full",
     rows: 3,
+    required: true,
   },
 ];
 
@@ -166,7 +174,11 @@ export default function CaseStudyForm({ onGenerated }: Props) {
     setLoading(false);
   };
 
-  const isFormReady = form.projectName.trim().length > 0;
+  const isFormReady =
+    form.projectName.trim().length > 0 &&
+    form.role.trim().length > 0 &&
+    form.problem.trim().length > 0 &&
+    form.outcomes.trim().length > 0;
 
   if (output || loading) {
     return (
@@ -214,6 +226,9 @@ export default function CaseStudyForm({ onGenerated }: Props) {
                 >
                   <label className="block text-sm font-medium text-gray-300 mb-1.5">
                     {field.label}
+                    {field.required && (
+                      <span className="text-amber-500 ml-1">*</span>
+                    )}
                   </label>
                   {field.type === "input" ? (
                     <input
@@ -263,6 +278,11 @@ export default function CaseStudyForm({ onGenerated }: Props) {
                 </>
               )}
             </button>
+            {!isFormReady && (
+              <p className="text-center text-xs text-gray-600 mt-2">
+                Fill in the 4 required fields to generate
+              </p>
+            )}
           </div>
         </form>
       </div>
