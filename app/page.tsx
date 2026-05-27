@@ -156,7 +156,7 @@ export default function Home() {
           {/* Footer — shown below the page content on all three sections */}
           <div className="max-w-3xl mx-auto px-6 pb-10 text-center space-y-1.5">
             <p className="text-gray-700 text-xs">
-              Built by Abayomi Omotoso · Product Designer · Birmingham, UK · 2026
+              Built by Abayomi Omotoso · Product Designer · United Kingdom · 2026
             </p>
             <p className="text-gray-600 text-xs">
               A free tool to help designers turn project notes into compelling
