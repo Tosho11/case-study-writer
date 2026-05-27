@@ -1,16 +1,32 @@
+// ─────────────────────────────────────────────────────────────────────────────
+// components/CaseStudyOutput.tsx — Displays the generated case study
+//
+// This component has two modes:
+//   1. STREAMING — While the AI is still writing, it renders the arriving text
+//      as React nodes (read-only) with a blinking cursor animation.
+//   2. DONE — Once generation completes, it converts the markdown to HTML and
+//      injects it into a contentEditable div so the user can click and edit
+//      the text directly before copying it.
+//
+// The copy button reads from the editable div's innerText (not the raw output)
+// so any edits the user made are included in what gets copied.
+// ─────────────────────────────────────────────────────────────────────────────
+
 "use client";
 
 import { useState, useEffect, useRef } from "react";
 import { Copy, Check, RefreshCw, Loader2 } from "lucide-react";
 
+// ── Props passed in from CaseStudyForm ───────────────────────────────────────
 interface Props {
-  output: string;
-  loading: boolean;
-  done: boolean;
-  projectName: string;
-  onReset: () => void;
+  output: string;       // The full (or partial during streaming) markdown text
+  loading: boolean;     // True while the stream is still active
+  done: boolean;        // True once the stream has fully completed
+  projectName: string;  // Shown as the title above the output
+  onReset: () => void;  // Callback to return to the empty form
 }
 
+// ── HTML escaping — prevents raw user/AI text from breaking the HTML ──────────
 function escapeHtml(text: string): string {
   return text
     .replace(/&/g, "&amp;")
@@ -18,6 +34,7 @@ function escapeHtml(text: string): string {
     .replace(/>/g, "&gt;");
 }
 
+// ── Converts **bold** markdown syntax to an HTML <strong> tag ────────────────
 function renderInlineHtml(text: string): string {
   return escapeHtml(text).replace(
     /\*\*([^*]+)\*\*/g,
@@ -25,6 +42,9 @@ function renderInlineHtml(text: string): string {
   );
 }
 
+// ── Converts the full markdown output to an HTML string ──────────────────────
+// Used once generation is done to populate the contentEditable div.
+// Handles: ## section headers, # titles, bullet lists, blank lines, paragraphs.
 function markdownToHtml(text: string): string {
   const lines = text.split("\n");
   const html: string[] = [];
@@ -34,14 +54,17 @@ function markdownToHtml(text: string): string {
     const line = lines[i];
 
     if (line.startsWith("## ")) {
+      // Section heading — styled in amber uppercase
       html.push(
         `<h2 class="text-xs font-bold tracking-widest uppercase text-amber-400 mt-6 mb-2 first:mt-0">${escapeHtml(line.replace(/^## /, ""))}</h2>`
       );
     } else if (line.startsWith("# ")) {
+      // Top-level title
       html.push(
         `<h1 class="text-lg font-bold text-white mb-3">${escapeHtml(line.replace(/^# /, ""))}</h1>`
       );
     } else if (line.startsWith("- ") || line.startsWith("* ")) {
+      // Collect consecutive list items into a single <ul>
       const items: string[] = [];
       while (
         i < lines.length &&
@@ -53,10 +76,12 @@ function markdownToHtml(text: string): string {
         i++;
       }
       html.push(`<ul class="mb-2">${items.join("")}</ul>`);
-      continue;
+      continue; // Skip the i++ at the bottom since we already advanced i
     } else if (line.trim() === "") {
+      // Empty line — add a small spacer div
       html.push('<div class="h-1"></div>');
     } else {
+      // Regular paragraph line
       html.push(
         `<p class="text-gray-300 text-sm leading-relaxed mb-1">${renderInlineHtml(line)}</p>`
       );
@@ -67,6 +92,9 @@ function markdownToHtml(text: string): string {
   return html.join("");
 }
 
+// ── Renders **bold** inline markdown as React nodes (used during streaming) ───
+// This is separate from markdownToHtml because during streaming we render
+// React elements directly rather than injecting HTML strings.
 function renderInline(text: string): React.ReactNode {
   const parts = text.split(/(\*\*[^*]+\*\*)/g);
   return parts.map((part, i) => {
@@ -88,29 +116,39 @@ export default function CaseStudyOutput({
   projectName,
   onReset,
 }: Props) {
+
+  // Tracks whether the "Copied!" confirmation is showing
   const [copied, setCopied] = useState(false);
+
+  // Ref to the contentEditable div — used to set innerHTML and read edited text
   const editableRef = useRef<HTMLDivElement>(null);
 
-  // Set editable HTML once when generation completes — never again,
-  // so React doesn't overwrite the user's edits on re-renders.
+  // ── Convert markdown to HTML and inject it once generation completes ──────
+  // We use useEffect with [done] so this only runs once — when done flips to true.
+  // We never update innerHTML again after this, which means React won't overwrite
+  // any edits the user makes inside the div.
   useEffect(() => {
     if (done && editableRef.current && output) {
       editableRef.current.innerHTML = markdownToHtml(output);
     }
   }, [done]); // eslint-disable-line react-hooks/exhaustive-deps
 
+  // ── Copy the current (possibly edited) text to the clipboard ─────────────
+  // Reads from innerText so edits the user made are included
   const handleCopy = async () => {
     const text = editableRef.current?.innerText ?? output;
     await navigator.clipboard.writeText(text);
     setCopied(true);
-    setTimeout(() => setCopied(false), 2000);
+    setTimeout(() => setCopied(false), 2000); // Reset the "Copied!" label after 2s
   };
 
   return (
     <div className="animate-fade-in">
-      {/* Header */}
+
+      {/* ── Top bar: title + action buttons ── */}
       <div className="flex items-start justify-between mb-6 gap-4">
         <div>
+          {/* Show a spinner + "Writing…" during generation, then the project name */}
           <div className="flex items-center gap-2 mb-1">
             {loading && (
               <Loader2 className="w-4 h-4 text-amber-400 animate-spin" />
@@ -119,6 +157,7 @@ export default function CaseStudyOutput({
               {loading ? "Writing your case study…" : projectName || "Your Case Study"}
             </h2>
           </div>
+          {/* Hint shown once generation is done to tell the user they can edit */}
           {done && (
             <p className="text-gray-500 text-sm">
               Click to edit · then copy to your portfolio
@@ -126,12 +165,14 @@ export default function CaseStudyOutput({
           )}
         </div>
 
+        {/* Copy and "Write another" buttons — only visible once generation is done */}
         {done && (
           <div className="flex items-center gap-2 flex-shrink-0">
             <button
               onClick={handleCopy}
               className="flex items-center gap-1.5 bg-white/[0.06] hover:bg-white/[0.1] border border-white/[0.08] text-gray-300 hover:text-white text-xs font-medium px-3 py-2 rounded-lg transition-all"
             >
+              {/* Toggle between "Copy" and "Copied!" based on state */}
               {copied ? (
                 <>
                   <Check className="w-3.5 h-3.5 text-green-400" />
@@ -144,6 +185,7 @@ export default function CaseStudyOutput({
                 </>
               )}
             </button>
+            {/* Returns the user to the blank form to generate another case study */}
             <button
               onClick={onReset}
               className="flex items-center gap-1.5 bg-[#F59E0B] hover:bg-amber-400 text-white text-xs font-medium px-3 py-2 rounded-lg transition-all"
@@ -155,13 +197,13 @@ export default function CaseStudyOutput({
         )}
       </div>
 
-      {/* Output box */}
+      {/* ── Main output box ── */}
       <div className="bg-white/[0.03] border border-white/[0.07] rounded-2xl p-6 sm:p-8 min-h-[300px]">
         {output ? (
           <>
-            {/* Streaming view — plain React render, not editable */}
+            {/* STREAMING VIEW: rendered as React nodes while text is arriving */}
             {!done && (
-              <div className="cursor-blink">
+              <div className="cursor-blink"> {/* CSS class adds a blinking cursor */}
                 {output.split("\n").map((line, i) => {
                   if (line.startsWith("## ")) {
                     return (
@@ -203,17 +245,19 @@ export default function CaseStudyOutput({
               </div>
             )}
 
-            {/* Editable view — shown once generation is complete */}
+            {/* DONE VIEW: contentEditable div — user can click and type to edit */}
+            {/* innerHTML is set once via useEffect above; React never touches it again */}
             {done && (
               <div
                 ref={editableRef}
                 contentEditable
-                suppressContentEditableWarning
+                suppressContentEditableWarning // Suppresses React's warning about editable divs
                 className="outline-none focus:ring-2 focus:ring-amber-500/30 focus:rounded-lg"
               />
             )}
           </>
         ) : (
+          // Shown briefly before the first chunk arrives
           <div className="flex items-center justify-center h-48">
             <div className="flex items-center gap-3 text-gray-600">
               <Loader2 className="w-5 h-5 animate-spin" />
@@ -223,7 +267,7 @@ export default function CaseStudyOutput({
         )}
       </div>
 
-      {/* Bottom actions */}
+      {/* ── Bottom action bar — duplicate buttons for convenience ── */}
       {done && (
         <div className="flex gap-3 mt-4">
           <button
