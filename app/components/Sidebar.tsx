@@ -179,7 +179,7 @@ export default function Sidebar({
             </div>
             <div className="min-w-0">
               {/* Name and role */}
-              <p className="text-white font-semibold text-xs leading-tight">Abayomi Omotoso</p>
+              <p className="text-white font-semibold text-xs leading-tight">Tosho</p>
               <p className="text-amber-500/70 text-[10px] truncate">Product Designer</p>
             </div>
           </div>
@@ -191,7 +191,7 @@ export default function Sidebar({
           </div>
 
           {/* App tagline / year */}
-          <p className="text-gray-700 text-[10px]">Case Study Writer · 2026</p>
+          <p className="text-gray-700 text-[10px]">Casely · 2026</p>
         </div>
       ) : (
         // COLLAPSED: just the AO avatar centred at the bottom
