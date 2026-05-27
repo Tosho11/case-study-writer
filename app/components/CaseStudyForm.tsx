@@ -248,11 +248,11 @@ export default function CaseStudyForm({ onGenerated }: Props) {
       {/* Page header — branding tag, headline, and subheading */}
       <div className="text-center mb-10">
 
-        {/* "Built by TOSHO" badge */}
+        {/* "Made for Designers" badge */}
         <div className="inline-flex items-center gap-2 bg-amber-500/10 border border-amber-500/20 rounded-full px-4 py-1.5 mb-8">
           <Sparkles className="w-3.5 h-3.5 text-amber-400" />
           <span className="text-amber-300 text-xs font-medium tracking-wide uppercase">
-            Built by TOSHO
+            Made for Designers
           </span>
         </div>
 
