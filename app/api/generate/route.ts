@@ -57,25 +57,26 @@ export async function POST(req: NextRequest) {
     //   1. Sets the persona — senior UX writer and portfolio coach — so Claude
     //      writes with the right voice and quality bar from the first word.
     //   2. Passes in the user's form data (providedFields) as the raw material.
-    //      Any fields the user left blank are automatically filled in using
-    //      Claude's inference, so no section is ever left empty.
+    //      Any fields the user left blank are intelligently inferred by Claude
+    //      so no section is ever empty or flagged as missing.
     //   3. Defines the exact 12-section structure Claude must follow, in order:
-    //        PRODUCT OVERVIEW  — what the product is and who it's for
-    //        GOALS             — 4–6 bold-titled goal paragraphs
-    //        MY ROLE           — Responsibilities + Collaboration sub-sections
-    //        USER RESEARCH     — methods, participants, and 3 key insights
-    //        DESIGN PROCESS    — discovery → ideation → wireframe → prototype → test
-    //        KEY DESIGN DECISIONS — 3–4 decisions including one that failed
-    //        TOOLS USED        — tools across research, design, and testing
-    //        TIMELINE          — duration and major milestones
-    //        THE PROJECT       — Challenge + Outcome sub-sections
-    //        KEY METRICS       — 3 headline numbers with descriptions
-    //        WHERE WE ARE      — current state of the product
-    //        FUTURE IMPROVEMENTS — 6–7 action-verb-led forward-looking paragraphs
+    //        PRODUCT OVERVIEW     — one grounded paragraph: what it is and who it's for
+    //        GOALS                — 4–6 bold-titled paragraphs (one sentence each)
+    //        MY ROLE              — Responsibilities + Collaboration sub-sections
+    //        USER RESEARCH        — 3–4 bold-titled insight paragraphs (one sentence each)
+    //        DESIGN PROCESS       — one flowing paragraph covering all five stages
+    //        KEY DESIGN DECISIONS — 3–4 bold-titled decision paragraphs (1–2 sentences each)
+    //        TOOLS USED           — one comma-separated line of tool names only
+    //        TIMELINE             — one sentence only
+    //        THE PROJECT          — challenges + outcomes, each as bold-titled paragraphs
+    //        KEY METRICS          — 3 bold numbers/percentages with one-sentence descriptions
+    //        WHERE WE ARE         — one short status paragraph
+    //        FUTURE IMPROVEMENTS  — 6–7 bold-titled action-verb-led paragraphs
     //
-    // max_tokens is set to 2500 to comfortably cover the 800–1000 word target
-    // (roughly 1,050–1,330 tokens) with headroom for longer inferred sections.
-    const prompt = `You are a senior UX writer and portfolio coach who has helped designers land roles at Google, Airbnb, and Spotify. You write case studies that are specific, confident, and compelling — the kind that make hiring managers stop scrolling.
+    // Each section has a tight format constraint (bold title + one sentence)
+    // to keep the output scannable and prevent AI padding.
+    // max_tokens is set to 2500 to cover the 600–800 word target with headroom.
+    const prompt = `You are a senior UX writer and portfolio coach who has helped designers land roles at Google, Airbnb, and Spotify. You write case studies that are specific, confident, and compelling.
 
 Here are the project details to base the case study on. If any information is missing for a section, intelligently infer realistic details from the context provided — do not leave sections empty or mention that information was not given.
 
@@ -85,51 +86,41 @@ Structure the case study in this exact order using these exact headings:
 
 ## PRODUCT OVERVIEW
 A clear, specific paragraph describing what the product is, who it is for, and what it does. Make it sound real and grounded.
-[Sets the scene — gives the reader immediate context before any other section.]
 
 ## GOALS
-Write 4 to 6 goals as short paragraphs. Each goal should have a bold title followed by a sentence explaining it. Cover user experience, business impact, and technical considerations.
-[Shows the designer understood the wider purpose of the work, not just the visual output.]
+Write 4 to 6 goals as short paragraphs — each with a bold title followed by one sentence explaining it.
 
 ## MY ROLE
-Two sub-sections written as flowing paragraphs: first, Responsibilities — what the designer owned end to end. Then, Collaboration — who they worked with and how.
-[Helps hiring managers understand scope of ownership and ability to work cross-functionally.]
+Two sub-sections:
+Responsibilities — one paragraph describing what the designer owned.
+Collaboration — one paragraph describing who they worked with and how.
 
 ## USER RESEARCH
-Describe who was spoken to, how many people, what method was used (interviews, surveys, usability testing), and the top 3 insights that shaped the design direction. Write in flowing paragraphs.
-[Proves the work was grounded in real user needs, not assumptions.]
+Write 3 to 4 insights as short paragraphs — each with a bold title followed by one sentence. Same format as the goals section.
 
 ## DESIGN PROCESS
-Walk through the stages: discovery, ideation, wireframing, prototyping, and testing. Be specific about what happened at each stage and what was learned. Write in flowing paragraphs.
-[The heart of the case study — shows how the designer thinks, not just what they made.]
+Walk through the stages: discovery, ideation, wireframing, prototyping, and testing. One flowing paragraph only. Be specific but concise.
 
 ## KEY DESIGN DECISIONS
-3 to 4 critical decisions made during the project. For each one, explain what the options were, what was chosen, and why. Include one decision that did not work and what was done instead. Write in flowing paragraphs.
-[Including a failure shows maturity and self-awareness — traits hiring managers look for.]
+Write 3 to 4 decisions as short paragraphs — each with a bold title followed by one to two sentences explaining the decision and why it was made. Same format as the goals section.
 
 ## TOOLS USED
-A short paragraph listing the tools used across research, design, collaboration, and testing — and what each was used for.
-[Quick signal of technical fluency without turning the case study into a CV.]
+List the tools in one short line separated by commas. Nothing else. Example: Figma, FigJam, Maze, Notion, Google Analytics.
 
 ## TIMELINE
-A brief paragraph covering how long the project took and what the major milestones were at each phase.
-[Gives the reader a sense of pace and project scale.]
+One sentence only. Example: This project ran for six months from kickoff to launch.
 
 ## THE PROJECT
-Two sub-sections written as flowing paragraphs: first, Challenge — 3 to 4 specific challenges faced. Then, Outcome — 4 to 6 outcomes achieved, each with a bold title.
-[Bookends the story with the problem and resolution — the classic narrative arc.]
+Write 3 to 4 challenges and 4 to 6 outcomes — each as short paragraphs with a bold title followed by one to two sentences. Keep them punchy and specific.
 
 ## KEY METRICS
-3 headline metrics, each with a percentage or number followed by a short description. If the user provided metrics use them; otherwise generate realistic ones based on the context. Write as flowing paragraphs, not a list.
-[Numbers make outcomes credible and scannable — hiring managers look for these first.]
+3 headline metrics — each with a bold percentage or number, followed by one sentence describing what it means.
 
 ## WHERE WE ARE
-A grounding paragraph about the current state of the product and what has been achieved so far.
-[Shows the project is ongoing and the designer stayed engaged beyond the initial launch.]
+One short grounding paragraph about the current state of the product.
 
 ## FUTURE IMPROVEMENTS
-6 to 7 forward-looking improvements written as short, punchy paragraphs each starting with an action verb.
-[Demonstrates strategic thinking and that the designer is never satisfied with "done".]
+6 to 7 improvements — each as a short paragraph with a bold title followed by one sentence. Start each with an action verb.
 
 Rules:
 - Write in first person throughout
@@ -137,9 +128,10 @@ Rules:
 - Never use em dashes
 - Be specific — use real details, numbers, and context wherever possible
 - Avoid vague phrases like "leveraged", "utilised", "ensured", "stakeholders"
+- If the user has not provided information for a section, intelligently infer realistic details based on the context they have given
 - Tone: confident, human, direct
 - Make it feel like a real designer wrote it, not an AI
-- Total length: 800 to 1000 words`;
+- Total length: 600 to 800 words`;
 
     // ── Call the Claude API with streaming enabled ────────────────────────────
     // If the API call itself fails (e.g. bad key, wrong model), catch and return
