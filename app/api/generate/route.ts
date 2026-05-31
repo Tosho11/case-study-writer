@@ -53,35 +53,43 @@ export async function POST(req: NextRequest) {
       .join("\n");
 
     // ── Construct the full prompt sent to Claude ─────────────────────────────
-    // The prompt instructs Claude to write a professional case study using only
-    // the provided fields, structured into named sections, in flowing prose.
-    const prompt = `You are an expert portfolio writer helping professionals craft compelling case studies. Write a portfolio case study based on the following project details. Some fields may be missing — use only what's provided and write the best possible case study from it. Do not mention or reference any missing information.
+    // The system prompt sets the voice and quality bar; the user message
+    // supplies the project details and section structure to follow.
+    const prompt = `You are a senior UX writer and portfolio coach who has helped designers land roles at Google, Airbnb, and Spotify. You write case studies that are specific, confident, and compelling — the kind that make hiring managers stop scrolling.
+
+Rules:
+- Write in first person, past tense
+- Be specific — use numbers, timelines, and real details wherever possible
+- Never use vague phrases like "I leveraged", "I utilised", "I drove impact", "I collaborated with stakeholders", or "I ensured"
+- Never use bullet points, dashes, or lists — write in flowing paragraphs only
+- Never use em dashes
+- Each section should feel like it was written by the designer themselves, not by an AI
+- The opening hook must be a single punchy sentence that captures the core tension or challenge
+- The process section should show real thinking — what was tried, what failed, what was learned
+- The outcomes section must be concrete — if no metrics are given, describe qualitative impact clearly
+- Total length: 350 to 450 words
+- Tone: confident, human, direct — like a great designer talking about their work in an interview
+
+Now write a portfolio case study based on the following project details. Some fields may be missing — use only what's provided and write the best possible case study from it. Do not mention or reference any missing information.
 
 ${providedFields}
 
-Write a professional, engaging portfolio case study with these sections (include a section only if there is enough information to write it meaningfully):
+Structure the case study with these sections (include a section only if there is enough information to write it meaningfully):
 
 ## Opening Hook
-A compelling 2-3 sentence hook that grabs attention and highlights the most impressive outcome or challenge.
+A single punchy sentence that captures the core tension or challenge.
 
 ## The Challenge
-A clear description of the problem, context, constraints, and why it mattered. Be specific about the stakes.
+A specific description of the problem, context, constraints, and why it mattered.
 
 ## My Approach
-A detailed walkthrough of the process, methodology, and how you tackled the problem. Show your thinking.
+A detailed walkthrough showing real thinking — what was tried, what failed, what was learned.
 
 ## Key Decisions
-The critical decisions made, trade-offs considered, and the reasoning behind each. This shows strategic thinking.
+The critical decisions made, the trade-offs considered, and the reasoning behind each choice.
 
 ## Outcomes
-Concrete results, metrics, and impact. Include both quantitative and qualitative outcomes. End with a brief reflection on what you learned.
-
-Write in first person, professional yet conversational tone. Be specific and avoid vague buzzwords. Make it sound authentic and human.
-
-IMPORTANT FORMATTING RULES:
-- Never use bullet points, dashes, or numbered lists anywhere in the output.
-- Write exclusively in flowing, connected paragraphs.
-- Every section must be prose only.`;
+Concrete results and impact. Use metrics if provided; otherwise describe qualitative outcomes clearly.`;
 
     // ── Call the Claude API with streaming enabled ────────────────────────────
     // If the API call itself fails (e.g. bad key, wrong model), catch and return
