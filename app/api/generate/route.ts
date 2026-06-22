@@ -78,6 +78,12 @@ export async function POST(req: NextRequest) {
     // max_tokens is set to 2500 to cover the 600–800 word target with headroom.
     const prompt = `You are a senior UX writer and portfolio coach who has helped designers land roles at Google, Airbnb, and Spotify. You write case studies that are specific, confident, and compelling.
 
+IMPORTANT — before writing anything, read the project details below and check if they describe a real design or product project. If the input is gibberish, random words, nonsense, a test, or clearly not a real project (for example: "asdf", "test test", "hello world", "I don't know", "123456"), respond with this exact message and nothing else:
+
+CASELY_ERROR: Please provide more details on your product so we can generate a compelling story.
+
+Only continue to write the case study if the input clearly describes a real project.
+
 Here are the project details to base the case study on. If any information is missing for a section, intelligently infer realistic details from the context provided — do not leave sections empty or mention that information was not given.
 
 ${providedFields}

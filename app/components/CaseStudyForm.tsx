@@ -196,6 +196,15 @@ export default function CaseStudyForm({ onGenerated }: Props) {
         setOutput((prev) => prev + chunk); // Triggers a re-render with the new text
       }
 
+      // ── Guardrail check — Claude returns CASELY_ERROR: if the input is gibberish ──
+      // Instead of showing the error as a case study, we reset the output and
+      // display it as a form-level error so the user can correct their input.
+      if (fullOutput.startsWith("CASELY_ERROR:")) {
+        setOutput("");
+        setError(fullOutput.replace("CASELY_ERROR:", "").trim());
+        return;
+      }
+
       // Mark generation as complete and notify the parent to save to History
       setDone(true);
       onGenerated?.(form.projectName, fullOutput);
