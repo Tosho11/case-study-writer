@@ -75,7 +75,8 @@ export async function POST(req: NextRequest) {
     //
     // Each section has a tight format constraint (bold title + one sentence)
     // to keep the output scannable and prevent AI padding.
-    // max_tokens is set to 2500 to cover the 600–800 word target with headroom.
+    // Length is open-ended — Claude writes as much as the project deserves.
+    // max_tokens is set to 2500 to give plenty of headroom for longer projects.
     const prompt = `You are a senior UX writer and portfolio coach who has helped designers land roles at Google, Airbnb, and Spotify. You write case studies that are specific, confident, and compelling.
 
 IMPORTANT — before writing anything, read the project details below and check if they describe a real design or product project. If the input is gibberish, random words, nonsense, a test, or clearly not a real project (for example: "asdf", "test test", "hello world", "I don't know", "123456"), respond with this exact message and nothing else:
@@ -137,7 +138,7 @@ Rules:
 - If the user has not provided information for a section, intelligently infer realistic details based on the context they have given
 - Tone: confident, human, direct
 - Make it feel like a real designer wrote it, not an AI
-- Total length: 600 to 800 words`;
+- Write as much as the project deserves — long enough to tell a compelling story, short enough to stay focused`;
 
     // ── Call the Claude API with streaming enabled ────────────────────────────
     // If the API call itself fails (e.g. bad key, wrong model), catch and return
